@@ -1,87 +1,70 @@
-# Enterprise Threat Detection & Architectural Engineering Portfolio
+# Enterprise Threat Detection & SIEM Engineering Portfolio
 **Author:** Joshua Langley  
-**Objective:** Practical design, configuration, and verification of automated defensive alert pipelines, network forensics, host integrity baselines, and authentication telemetry.
+**Objective:** Practical design, deployment, configuration, and verification of automated defensive alert pipelines, host integrity baselines, and active internal privilege auditing.
 
 ---
 
-## Lab 1: Host-Based Threat Detection & Network Packet Analysis
+## Lab 1: Real-Time File Integrity Monitoring (FIM) & System Auditing
 
 ### Executive Summary
-A simulated authentication attack was executed against an isolated Linux local node to validate endpoint logging capabilities within the Wazuh SIEM/XDR platform and cross-examine network traffic anomalies using Wireshark. The objective was to successfully log, analyze, and document an unauthorized access attempt mimicking automated credential probing.
-
-### Topology & Tools
-- **Operating System:** Ubuntu Linux VM
-- **SIEM Engine:** Wazuh Architecture (Single-Node Stack)
-- **Network Analyzer:** Wireshark Packet Inspection
-- **Targeted Protocol:** SSH (Port 22)
-
-### Phase 1: Host-Based Log Telemetry (Wazuh SIEM)
-Upon executing an unauthenticated access sequence targeting non-existent system accounts, the Wazuh analysis engine successfully triggered an Alert Level 5 security flag. This event correlates directly with **MITRE ATT&CK Technique T1110 (Brute Force)**.
-
-#### Telemetry Evidence
-*(Note: Refer to local project documentation repository for associated endpoint authentication capture logs).*
-
-### Phase 2: Deep Packet Forensic Investigation (Wireshark)
-To cross-reference host logs with raw network data, network layer analysis was initiated to monitor traffic anomalies. The targeted connection requests—occurring systematically within milliseconds—characterize automated script activity rather than a standard human authentication error.
-
----
-
-## Lab 2: Real-Time File Integrity Monitoring (FIM) & Security Metrics
-
-### Executive Summary
-This phase involved configuring and verifying an automated File Integrity Monitoring (FIM) detection pipeline utilizing the Wazuh SIEM/XDR architecture. By establishing active directory tripwires on high-value file systems (`/var/www/html`), the environment successfully identified unauthorized file modifications and system configuration drifting in real-time.
+This project involved configuring and verifying an automated File Integrity Monitoring (FIM) detection pipeline utilizing the Wazuh SIEM/XDR architecture. By establishing active directory tripwires on high-value file systems (`/var/www/html`), the environment successfully identified unauthorized file modifications, integrity drift, and configuration tampering in real-time.
 
 ### Tools & Environment
-- **SIEM Engine:** Wazuh XDR Architecture
-- **Target Host:** Ubuntu Linux Node (Agent 000)
-- **Core Technology:** FIM (File Integrity Monitoring / Syscheck Engine)
+- **SIEM Engine:** Wazuh XDR Architecture (Single-Node Stack)
+- **Target Host Node:** Ubuntu Linux (Agent 000)
+- **Core Engine Feature:** Syscheck (File Integrity Monitoring Daemon)
 
-### Phase 1: Real-Time Tampering Detection
-An unauthorized data injection attack was simulated against the host's web directory assets. The Wazuh file integrity monitoring engine detected the modification within seconds of execution, tracking cryptographic change metrics.
+### Phase 1: Real-Time File Tampering Detection
+An unauthorized data injection attack was simulated against the host's web directory assets to mirror a malicious defacement or web shell drop. The Wazuh file integrity monitoring engine detected the modification within seconds of execution, tracking cryptographic change metrics.
 
 #### Forensic Telemetry Evidence
 ![FIM Event Timeline](FIM1.png)
 
 ![FIM Delta Analysis](FIM2.png)
 
-**Key Forensic Data Extracted (Rule 550 / MITRE T1565.001):**
+**Key Forensic Data Extracted (Rule 550 / MITRE ATT&CK T1565.001):**
 - **Monitored Object:** `/var/www/html/index.html`
-- **Triggered Event:** File Modified / Integrity Checksum Changed
+- **Triggered Event:** File Modified / Integrity Checksum Mismatch
 - **Pre-Attack MD5:** `5f083213de4267a0aec7920e6d5aca9a`
 - **Post-Attack MD5:** `ee1e1d3f894d190b2ea5b5721e04009e`
-- **Defensive Alignment:** Maps directly to **Stored Data Manipulation** tactics, providing immediate detection against malicious website defacement or backdooring.
+- **Defensive Alignment:** Maps to **Stored Data Manipulation** tactics, providing immediate visibility to stop persistent web threats and unapproved changes to configuration settings.
 
-#### Metadata Attribute Inspection
+#### Metadata Attribute & Signature Inspection
 ![FIM Attributes](FIM4.png)
 
-The detailed metadata view proves full audit tracking down to the exact filesystem attributes, including file size drift (from 24 to 28 bytes) and real-time modification timestamps.
+The detailed document expansion proves full security tracking down to the exact filesystem metadata attributes. The engine captured an explicit file size expansion shifting from **24 bytes to 28 bytes** and updated the modification cryptographic baseline instantly.
 
 ### Phase 2: Centralized Telemetry Dashboarding
-System-wide behavioral metrics were evaluated using the centralized SIEM Integrity Monitoring reporting dashboard to isolate real-time activity anomalies from standard baseline system behavior.
+System-wide behavioral metrics were evaluated using the centralized SIEM reporting dashboard to isolate real-time activity anomalies from standard system behavior.
 
-#### Compliance Telemetry Evidence
+#### Integrity Metrics Verification
 ![System Metrics Dashboard](SysAudit.png)
+
+**Key Operational Takeaways:**
+- Demonstrated practical capability in configuring a centralized SIEM to capture host file modifications, parse cryptographic signature drift, and display focused alert indicators on the analytical timeline.
 
 ---
 
-## Lab 3: Privilege Escalation & Insider Threat Detection (Authentication Auditing)
+## Lab 2: Privilege Escalation & Insider Threat Detection
 
 ### Executive Summary
-This phase targeted internal system telemetry by validating Wazuh's capacity to intercept and alert on unauthorized credential probing and localized privilege escalation attempts. By tracking core system authentication vectors, the environment monitors for internal threat actors attempting to compromise the root administrative account.
+This phase targeted internal system telemetry by validating the SIEM's capability to intercept and alert on unauthorized credential probing and localized privilege escalation attempts. By monitoring core authentication logs, the environment alerts security operations when an active user attempts to compromise administrative accounts.
 
 ### Tools & Environment
-- **SIEM Engine:** Wazuh XDR Architecture
-- **Log Source:** Linux Core Authentication Log (`/var/log/auth.log`)
+- **Log Source:** Linux Core Authentication Infrastructure (`journald` / `/var/log/auth.log`)
 - **Monitored Action:** Native `su` (Switch User) transactions
+- **SIEM Rule Association:** Rule 5301 (su: Authentication failure)
 
-### Phase 1: Localized Account Probing Simulation
-A malicious actor simulation was executed locally by targeting the `root` account with a series of randomized, high-velocity incorrect password entries, attempting to force unauthorized entry.
+### Technical Proof of Concept (Account Probing)
+An insider threat scenario was simulated by targeting the administrative `root` profile with a sequence of rapid, unauthenticated password attempts from a local terminal session to mock a manual brute-force or credential-guessing attack loop.
 
-#### Forensic Telemetry Evidence
+#### Telemetry Evidence
 ![Authentication Failure Alert](auth_failure.png)
 
-**Key Operational Insights (Rule 5301 / MITRE T1078 - Valid Accounts):**
-- **Triggered Policy:** `su: Authentication failure`
-- **Targeted Target Account:** `root`
+![Authentication Failure Log Analysis](auth_failure2.png)
+
+**Key Operational Insights (MITRE ATT&CK T1078 - Valid Accounts):**
+- **Log Output:** `FAILED SU (to root) vboxuser on pts/0`
+- **Targeted Account:** `root`
 - **Alert Level:** 5 (Security anomaly verified)
-- **Defensive Alignment:** Provides real-time notifications when an adversary or rogue internal asset attempts to brute-force local account credentials or move laterally across local Linux terminal loops.
+- **Defensive Alignment:** Ensures immediate, actionable alert routing the moment a threat actor or rogue internal asset attempts to abuse existing local accounts, brute-force credentials, or move laterally across system boundaries.
